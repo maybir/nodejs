@@ -1,3 +1,5 @@
+const User = require('../models/user');
+
 const users = [
     { id: 1, name: 'J' },
     { id: 2, name: 'Ja' },
@@ -5,32 +7,26 @@ const users = [
 ];
 
 
-const getUsers = (req, res)=>{
-    return res.json(users);
+const getUsers = async (req, res)=>{
+    try{
+        const users = await User.find().select('-password');
+        return res.status(200).json(users);
+    } catch(error){
+    return res.status(500).json( {error: error.message });
+    }
 }
 
 const addUser = (req, res) => {
-    console.log('Request Headers:', req.headers);
-    console.log('Request Body:', req.body);
+    const { name, email, password } = req.body;
+  
+    const newUser = new User({ name, email, password });
+    newUser.save();
+  
+    return res.status(201).json(newUser);
+  };
 
-    const { name } = req.body;
 
-    if (name == null) {
-        return res.status(400).json('Name is required');
-    }
 
-    const nameExists = users.find(user => user.name === name);
-    if (nameExists) {
-        return res.status(400).json('Name already exists. Use a different name');
-    }
-
-    const user = {
-        id: users.length + 1,
-        name,
-    };
-    users.push(user);
-    return res.status(201).json(users);
-}
 
 const updateUser =  (req, res) => {
     const { id } = req.params
@@ -47,7 +43,7 @@ const updateUser =  (req, res) => {
     }
 
     user.name = name;
-    return res.status(200).json(users);
+    return res.status(201).json(users);
 }
 
 const deleteUser = (req, res) => {
@@ -67,3 +63,5 @@ module.exports= {
     updateUser,
     deleteUser
 };
+
+//return all users, including DB
