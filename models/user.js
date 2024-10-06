@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
-        name: {
+        username: {
             type: String,
             required: true,
             unique: true,
@@ -23,8 +23,6 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
-            min: 6,
-            max: 24,
         },
         incomes: [
             {
