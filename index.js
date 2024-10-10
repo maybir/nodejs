@@ -1,15 +1,12 @@
 const express = require('express');
-const userRouter = require('./routes/user.js');
-
+const router = require('./routes');
 const connectDb = require('./lib/connect.js');
 
 const app = express();
 
 app.use(express.json());
 
-app.use(userRouter);
-
-console.log(process.env.DB_URL)
+app.use('/api', router);
 
 app.listen(3000, () => {
     connectDb();
