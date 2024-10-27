@@ -55,4 +55,43 @@ const getIncomes = async(req,res)=>{
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
-module.exports = { addIncome, getIncomes };
+
+
+const updateIncome = async (req, res) => {
+    try {
+        const userId = userIdValidation.parse(req.params.userId);
+        const incomeId = req.params.incomeId;
+        const { title, description, amount, tag, currency } = incomeSchema.parse(req.body);
+
+        // Check if user exists
+        const userExists = await User.findById(userId);
+        if (!userExists) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if income exists and belongs to the user
+        const income = await Income.findOne({ _id: incomeId, _id: { $in: userExists.incomes } });
+        if (!income) {
+            return res.status(404).json({ message: 'Income not found or does not belong to user' });
+        }
+
+        // Update income fields
+        income.title = title || income.title;
+        income.description = description || income.description;
+        income.amount = amount || income.amount;
+        income.tag = tag || income.tag;
+        income.currency = currency || income.currency;
+
+        await income.save();
+        return res.status(200).json({ message: "Income updated successfully" });
+    } catch (error) {
+        console.log(error);
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: error.errors[0].message });
+        }
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+module.exports = { addIncome, getIncomes, updateIncome };
